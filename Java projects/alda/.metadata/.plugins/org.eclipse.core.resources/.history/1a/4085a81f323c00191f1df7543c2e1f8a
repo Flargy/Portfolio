@@ -1,0 +1,135 @@
+package Star;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Set;
+
+public class Star { 
+	private ArrayList<Vertex> nodeList = new ArrayList<Vertex>();;
+	private Set<Vertex> knownSet = new HashSet<Vertex>();
+
+	
+	public void Star() {
+		//nodeList = new ArrayList<Vertex>();
+	}
+
+	public void startStar(int minutes, Vertex start, Vertex end) {
+		
+		while (minutes > 1440) {
+			minutes -= 1440;
+		}
+		PriorityQueue<Vertex> qp = new PriorityQueue<Vertex>();
+		end.distance(nodeList);
+
+		Vertex temp = start;
+		
+		int i = 1;
+		
+		
+		while(!knownSet.contains(end)) 
+		{
+			Vertex tempx = null;
+			for(Entry<Vertex, Connections> entry : temp.getConnections().entrySet()) 
+			{	
+				
+				if(!knownSet.contains(entry.getKey())) 
+				{
+					tempx = entry.getKey();
+					if (temp == start) {
+						start.firstDeparture(tempx, minutes);
+					}
+					tempx.path(temp);
+					tempx.departureTime(tempx.getPrevious(), minutes);
+					if (temp != start)
+						temp.waitTime(tempx, minutes);
+					qp.add(tempx);
+				}
+				
+			}
+			temp = qp.remove();
+			if(i == 1) {
+				start.firstDeparture(temp, minutes);
+				i++;}
+			
+			knownSet.add(temp);
+		}
+		System.out.println("Time so far: " + temp.getCost() + minutes);
+		
+		
+	}
+
+
+
+public ArrayList<Vertex> getNodeList() {
+	return nodeList;
+}
+
+public void addToList(Vertex n) {
+	nodeList.add(n);
+}
+
+
+
+public static void main(String [] args) {
+	Star s = new Star();
+	
+	
+	Vertex akalla = new Vertex(5,5);
+//	Connections akallaCon = new Connections();
+//	akalla.
+	Vertex hjulsta = new Vertex(20,20);
+//	Connections hjulstaCon = new Connections();
+	Vertex kista = new Vertex(8,10);
+//	Connections kistaCon = new Connections();
+	Vertex tc = new Vertex(80,90);
+//	Connections tcCon = new Connections();
+	Vertex medborgarplatsen = new Vertex(70,75);
+//	Connections medborgarplatsenCon = new Connections();
+	Vertex hallonbergen = new Vertex(30,30);
+//	Connections hallonbergenCon = new Connections();
+	Vertex västraskogen = new Vertex(60, 60);
+//	Connections västraskogenCon = new Connections();
+	s.addToList(akalla);
+	s.addToList(hjulsta);
+	s.addToList(kista);
+	s.addToList(tc);
+	s.addToList(medborgarplatsen);
+	s.addToList(hallonbergen);
+	s.addToList(västraskogen);
+	akalla.createConnections(hjulsta,5 ,4);
+	akalla.createConnections(kista, 2, 4);
+	kista.createConnections(akalla, 5, 4);
+	kista.createConnections(hallonbergen, 5, 3);
+	hallonbergen.createConnections(kista, 4, 3);
+	hallonbergen.createConnections(västraskogen, 7, 2);
+	hjulsta.createConnections(akalla, 5, 3);
+	hjulsta.createConnections(tc, 20, 6);
+	hjulsta.createConnections(medborgarplatsen,15 ,10);
+	medborgarplatsen.createConnections(tc, 2, 4);
+	medborgarplatsen.createConnections(hjulsta, 15, 8);
+	tc.createConnections(västraskogen, 5, 2);
+	tc.createConnections(medborgarplatsen, 2, 7);
+	tc.createConnections(hjulsta, 20, 6);
+	västraskogen.createConnections(hallonbergen, 7, 2);
+	västraskogen.createConnections(tc, 5, 2);
+	s.startStar(425, akalla, medborgarplatsen);
+	
+//	akalla.setConnections(kista, 3);
+//	kista.setConnections(hallonbergen, 5);
+//	kista.setConnections(akalla, 8);
+//	kista.setConnections(hjulsta, 10);
+//	kista.setConnections(tc, 10);
+//	västraskogen.setConnections(kista, 15);
+//	västraskogen.setConnections(hallonbergen, 6);
+//	västraskogen.setConnections(tc, 7);
+//	hallonbergen.setConnections(kista, 4);
+//	hallonbergen.setConnections(västraskogen,5);
+//	hjulsta.setConnections(kista, 4);
+//	tc.setConnections(kista, 12);
+//	tc.setConnections(västraskogen, 5);
+//	tc.setConnections(medborgarplatsen, 18);
+//	
+}
+}

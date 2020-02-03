@@ -1,0 +1,102 @@
+package Star;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Set;
+
+public class Star { 
+	private ArrayList<Vertex> nodeList;
+	private Set<Vertex> knownSet = new HashSet<Vertex>();
+
+	
+	public void Star() {
+		nodeList = new ArrayList<Vertex>();
+	}
+
+	public void startStar(int minutes, Vertex start, Vertex end) {
+		while (minutes > 1440) {
+			minutes -= 1440;
+		}
+		PriorityQueue<Vertex> qp = new PriorityQueue<Vertex>();
+		end.distance(nodeList);
+
+		Vertex temp = start;
+		temp.firstDeparture(start, minutes);
+		
+		int i = 1;
+		
+		
+		while(!knownSet.contains(end)) 
+		{
+			Vertex tempx = null;
+			for(Entry<Vertex, Connections> entry : temp.getConnections().entrySet()) 
+			{	
+				
+				if(!knownSet.contains(entry.getKey())) 
+				{
+					tempx = entry.getKey();
+					tempx.path(temp);
+					tempx.departureTime(tempx.getPrevious(), minutes);
+					qp.add(tempx);
+				}
+				
+			}
+			temp = qp.remove();
+			if(i = 1)
+				start.firstDeparture(temp, minutes);
+			System.out.println("Time so far: " + temp.getCost());
+			knownSet.add(temp);
+		}
+		
+		
+	}
+
+
+
+public ArrayList<Vertex> getNodeList() {
+	return nodeList;
+}
+
+public void addToList(Vertex n) {
+	this.nodeList.add(n);
+}
+
+
+
+public static void main(String [] args) {
+	
+	
+	
+	Vertex akalla = new Vertex(142,575);
+	akalla.addDepartures(2);
+	Vertex hjulsta = new Vertex(156,321);
+	hjulsta.addDepartures(3);
+	Vertex kista = new Vertex(288,917);
+	kista.addDepartures(2);
+	Vertex tc = new Vertex(195,936);
+	tc.addDepartures(3);
+	Vertex medborgarplatsen = new Vertex(314,372);
+	medborgarplatsen.addDepartures(2);
+	Vertex hallonbergen = new Vertex(126,312);
+	hallonbergen.addDepartures(3);
+	Vertex västraskogen = new Vertex(100, 325);
+	västraskogen.addDepartures(2);
+	akalla.setConnections(kista, 3);
+	kista.setConnections(hallonbergen, 5);
+	kista.setConnections(akalla, 8);
+	kista.setConnections(hjulsta, 10);
+	kista.setConnections(tc, 10);
+	västraskogen.setConnections(kista, 15);
+	västraskogen.setConnections(hallonbergen, 6);
+	västraskogen.setConnections(tc, 7);
+	hallonbergen.setConnections(kista, 4);
+	hallonbergen.setConnections(västraskogen,5);
+	hjulsta.setConnections(kista, 4);
+	tc.setConnections(kista, 12);
+	tc.setConnections(västraskogen, 5);
+	tc.setConnections(medborgarplatsen, 18);
+	
+}
+}

@@ -1,0 +1,126 @@
+package Astar;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Set;
+
+public class Star { 
+	private ArrayList<Vertex> nodeList = new ArrayList<Vertex>();;
+	private Set<Vertex> knownSet = new HashSet<Vertex>();
+
+
+	public Star() {
+	}
+
+	
+	/**
+	 * The first while loop in the beginning makes sure that the inserted minutes are not higher than a 24 hour cycle as the method does not differentiate between days.
+	 * The second while loop contains a A star algorithm.
+	 * If either the start or end Vertex used doesn't exist the method will crash as it cannot search for a station which does not exist.
+	 * 
+	 * 
+	 * @param minutes is the start time of which you wish do depart.
+	 * @param start is the station you are going from
+	 * @param end is the station you are going to
+	 */
+	public void startStar(int minutes, Vertex start, Vertex end) {
+
+		while (minutes > 1440) {
+			minutes -= 1440;
+		}
+		PriorityQueue<Vertex> qp = new PriorityQueue<Vertex>();
+		end.distance(nodeList);
+
+		Vertex temp = start;
+		knownSet.add(start);
+		int i = 1;
+
+
+		while(!knownSet.contains(end)) 
+		{
+			Vertex tempx = null;
+			for(Entry<Vertex, Connections> entry : temp.getConnections().entrySet()) 
+			{	
+				
+				
+				if(!knownSet.contains(entry.getKey())) 
+				{
+					tempx = entry.getKey();
+					if (temp == start) {
+						start.firstDeparture(tempx, minutes);
+					}
+					tempx.path(temp);
+					tempx.departureTime(temp);
+					if (temp != start) {
+						temp.waitTime(tempx, minutes);
+					}
+					qp.add(tempx);
+				}
+
+			}
+			temp = qp.remove();
+			if(i == 1) {
+				start.firstDeparture(temp, minutes);
+				i++;}
+
+			knownSet.add(temp);
+		}
+		System.out.println("Time so far: " + (temp.getCost() + " previous node time: " + temp.getPrevious().getName() + " " + temp.getPrevious().getCost()));
+
+
+	}
+
+
+
+	public ArrayList<Vertex> getNodeList() {
+		return nodeList;
+	}
+
+	public void addToList(Vertex n) {
+		nodeList.add(n);
+	}
+
+
+
+public static void main(String [] args) {
+		Star s = new Star();
+
+
+		Vertex akalla = new Vertex(5,5,"akalla");
+		Vertex hjulsta = new Vertex(20,20,"hjulsta");
+		Vertex kista = new Vertex(8,10,"kista");
+		Vertex tc = new Vertex(80,90,"tc");
+		Vertex medborgarplatsen = new Vertex(70,75,"medborgarplatsen");
+		Vertex hallonbergen = new Vertex(30,30,"hallonbergen");
+		Vertex vätraskogen = new Vertex(60, 60,"vätraskogen");
+		Vertex frid = new Vertex(60,24, "frid");
+		s.addToList(frid);
+		s.addToList(akalla);
+		s.addToList(hjulsta);
+		s.addToList(kista);
+		s.addToList(tc);
+		s.addToList(medborgarplatsen);
+		s.addToList(hallonbergen);
+		s.addToList(vätraskogen);
+		akalla.createConnections(hjulsta,5 ,1);
+		akalla.createConnections(kista, 2, 1);
+		kista.createConnections(akalla, 5, 1);
+		kista.createConnections(hallonbergen, 5, 1);
+		hallonbergen.createConnections(kista, 4, 1);
+		hallonbergen.createConnections(vätraskogen, 7, 1);
+		hjulsta.createConnections(akalla, 5, 1);
+		hjulsta.createConnections(tc, 20, 1);
+		hjulsta.createConnections(medborgarplatsen,15 ,1);
+		medborgarplatsen.createConnections(tc, 2, 4);
+		medborgarplatsen.createConnections(hjulsta, 15, 1);
+		tc.createConnections(vätraskogen, 5, 1);
+		tc.createConnections(medborgarplatsen, 2, 1);
+		tc.createConnections(hjulsta, 20, 6);
+		vätraskogen.createConnections(hallonbergen, 7, 1);
+		vätraskogen.createConnections(tc, 5, 1);
+		s.startStar(50, akalla, frid);
+	
+	}
+}

@@ -1,0 +1,137 @@
+package Astar;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Set;
+
+public class Star { 
+	private ArrayList<Station> stationList = new ArrayList<Station>();;
+	private Set<Station> knownSet = new HashSet<Station>();
+
+
+	public Star() {
+	}
+
+	
+	/**
+	 * <h1> Star </h1>
+	 * This method is used to calculate the travel time from a start station to an end station using an A* algorithm
+	 * First it makes sure that the inserted minutes are not higher than a 24 hour cycle as the method does not differentiate between days.
+	 * Secondly it contains a A star algorithm.
+	 * If either the start or end Vertex used doesn't exist the method will crash as it cannot search for a station which does not exist.
+	 * If either the start or end Vertex can't connect to the other the method will crash and give a NoSuchElementException because no link has been created.
+	 * For this method to function the stationList must have at least 2 stations in it that have either a direct or partial connection to each other.
+	 * 
+	 * @param returns void
+	 * @param minutes is the start time of which you wish do depart, the time entered must be in minutes as it's calculated in minutes.
+	 * @param start is the first departure station
+	 * @param end is the destination station
+	 */
+	public void startStar(int minutes, Station start, Station end) {
+		if(minutes <0 || start == null || end == null) {
+			throw new NullPointerException();
+		}
+		
+		while (minutes > 1440) {
+			minutes -= 1440;
+		}
+		PriorityQueue<Station> pq = new PriorityQueue<Station>();
+		end.distance(stationList);
+
+		Station temp = start;
+		knownSet.add(start);
+		int i = 1;
+
+
+		while(!knownSet.contains(end)) 
+		{
+			Station tempx = null;
+			for(Entry<Station, Connections> entry : temp.getConnections().entrySet()) 
+			{	
+				
+				
+				if(!knownSet.contains(entry.getKey())) 
+				{
+					tempx = entry.getKey();
+					if (temp == start) {
+						start.firstDeparture(tempx, minutes);
+					}
+					tempx.updatePrevious(temp);
+					tempx.departureTime(temp);
+					if (temp != start) {
+						temp.waitTime(tempx, minutes);
+					}
+					pq.add(tempx);
+				}
+
+			}
+			temp = pq.remove();
+			if(i == 1) {
+				start.firstDeparture(temp, minutes);
+				i++;}
+
+			knownSet.add(temp);
+		}
+		System.out.println("Time so far: " + (temp.getCost() + " previous node time: " + temp.getPreviousStation().getName() + " " + temp.getPreviousStation().getCost()));
+
+
+	}
+
+
+
+	public ArrayList<Station> getNodeList() {
+		return stationList;
+	}
+/**
+ * Adds a station to an array containing all stations
+ * Is used to calculate the heuristic values
+ * 
+ * @param n
+ */
+	public void addToStationList(Station n) {
+		stationList.add(n);
+	}
+
+
+
+public static void main(String [] args) {
+		Star s = new Star();
+
+
+		Station akalla = new Station(5,5,"akalla");
+		Station hjulsta = new Station(20,20,"hjulsta");
+		Station kista = new Station(8,10,"kista");
+		Station tc = new Station(80,90,"tc");
+		Station medborgarplatsen = new Station(70,75,"medborgarplatsen");
+		Station hallonbergen = new Station(30,30,"hallonbergen");
+		Station vätraskogen = new Station(60, 60,"vätraskogen");
+		
+		s.addToStationList(akalla);
+		s.addToStationList(hjulsta);
+		s.addToStationList(kista);
+		s.addToStationList(tc);
+		s.addToStationList(medborgarplatsen);
+		s.addToStationList(hallonbergen);
+		s.addToStationList(vätraskogen);
+		akalla.createConnections(hjulsta,5 ,1);
+		akalla.createConnections(kista, 2, 1);
+		kista.createConnections(akalla, 5, 1);
+		kista.createConnections(hallonbergen, 5, 1);
+		hallonbergen.createConnections(kista, 4, 1);
+		hallonbergen.createConnections(vätraskogen, 7, 1);
+		hjulsta.createConnections(akalla, 5, 1);
+		hjulsta.createConnections(tc, 20, 1);
+		hjulsta.createConnections(medborgarplatsen,15 ,1);
+		medborgarplatsen.createConnections(tc, 2, 4);
+		medborgarplatsen.createConnections(hjulsta, 15, 1);
+		tc.createConnections(vätraskogen, 5, 1);
+		tc.createConnections(medborgarplatsen, 2, 1);
+		tc.createConnections(hjulsta, 20, 6);
+		vätraskogen.createConnections(hallonbergen, 7, 1);
+		vätraskogen.createConnections(tc, 5, 1);
+		s.startStar(50, akalla, tc);
+	
+	}
+}

@@ -1,0 +1,131 @@
+package Astar;
+
+import java.util.*;
+import java.util.Map.Entry;
+
+public class Vertex implements Comparable<Vertex>{
+	
+	private Map<Vertex, Connections> connections = new HashMap<Vertex, Connections>();
+	private boolean known;
+	private double heuristic;
+	private double x;
+	private double y;
+	private Vertex previous = null;
+	private double cost= 0;
+	private String name;
+
+	public Vertex (double xp, double yp,String n) {
+		known = false;
+		this.x = xp;
+		this.y = yp;
+		this.name = n;
+		
+	}
+	
+	public Vertex getPrevious() {
+		return previous;
+	}
+
+	public void path(Vertex n) {
+		previous = n;
+	}
+	public boolean known() {
+		return known;
+	}
+	public void departureTime(Vertex n) {
+		double travelTime = n.cost+ n.connections.get(this).getWeight();
+
+		cost = travelTime;
+		
+	}
+	
+	public void waitTime(Vertex n, int minutes) {
+		
+		
+		
+
+		int costToInt = (int) cost;
+		int wait = (int) connections.get(n).getTree().ceilingEntry(costToInt + minutes).getValue() - (minutes + costToInt);
+		n.cost += wait;
+
+	}
+	
+	public void firstDeparture(Vertex n, int minutes) {
+		cost = (int) connections.get(n).getTree().ceilingEntry(minutes).getValue() - minutes;
+		
+	}
+
+	
+	public double checkWeight(Vertex n) {
+		return getConnections().get(n).getWeight();
+	}
+
+	public double getX() {
+		return x;
+	}
+	public double getY() {
+		return y;
+	}
+	public String getName() {
+		return name;
+	}
+
+	public void createConnections(Vertex n, int i,int s) {
+		Connections con = new Connections(i, s);
+		getConnections().put(n, con);
+	}
+
+	public void removeConnection(Vertex n) {
+		getConnections().remove(n);
+	}
+
+	public void distance(Collection<Vertex> nodeList) {
+		double tempX = 0;
+		double tempY = 0;
+
+		for (Vertex n : nodeList) {
+			if (!n.name.equals(this.name)) {
+				tempX = this.getX() - n.getX();
+				tempY = this.getY() - n.getY();
+				n.heuristic = (Math.sqrt((tempX * tempX) + (tempY * tempY))) / 2.3;
+			}
+			
+//			System.out.println(n.heuristic + " " +n.name + " Heuristic calculated");
+		}
+
+	}
+
+	public double getCost() {
+		return cost;
+	}
+	public double getHeuristic() {
+		return heuristic;
+	}
+
+	@Override
+	public int compareTo(Vertex n) {
+		
+		return (int) ((cost + heuristic) - (n.cost - n.heuristic));
+	}
+
+	public Map<Vertex, Connections> getConnections() {
+		return connections;
+	}
+	
+
+	public void setConnections(Vertex n, Connections c) {
+		this.connections.put(n, c);
+	}
+	
+	@Override
+	public int hashCode() {
+		int hashVal = 0;
+		
+		for (int i = 0; i < name.length(); i++)
+			hashVal = 23 * hashVal + name.charAt(i);
+		hashVal += (int) (x * 23) + (int) (y * 23);
+		return hashVal;
+	}
+	
+
+}
